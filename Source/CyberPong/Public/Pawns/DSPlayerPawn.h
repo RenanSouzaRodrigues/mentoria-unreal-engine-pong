@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Mentoria Unreal Engine - 2026
 
 #pragma once
 
@@ -7,23 +7,16 @@
 #include "DSPlayerPawn.generated.h"
 
 UCLASS()
-class CYBERPONG_API ADSPlayerPawn : public APawn
-{
+class CYBERPONG_API ADSPlayerPawn : public APawn {
 	GENERATED_BODY()
-
+	
 public:
-	// Sets default values for this pawn's properties
 	ADSPlayerPawn();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };
