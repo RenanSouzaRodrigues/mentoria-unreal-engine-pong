@@ -6,9 +6,20 @@
 #include "GameFramework/Pawn.h"
 #include "DSPlayerPawn.generated.h"
 
+class UInputMappingContext;
+class UInputAction;
+struct FInputActionValue;
+
 UCLASS()
 class CYBERPONG_API ADSPlayerPawn : public APawn {
 	GENERATED_BODY()
+	
+protected:
+	UPROPERTY(EditAnywhere, Category="Player Inputs")
+	UInputMappingContext* PlayerInputMappingContext;	
+
+	UPROPERTY(EditAnywhere, Category="Player Inputs")
+	UInputAction* MovementInputAction;
 	
 public:
 	ADSPlayerPawn();
@@ -19,4 +30,8 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+private:
+	UFUNCTION()
+	void MovePlayer(const FInputActionValue& InputActionValue);
 };
