@@ -3,9 +3,19 @@
 #include "Pawns/DSPlayerPawn.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Components/BoxComponent.h"
 
 ADSPlayerPawn::ADSPlayerPawn() {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	const auto rootComponent = this->CreateDefaultSubobject<USceneComponent>("Root Component");
+	this->SetRootComponent(rootComponent);
+	
+	this->PlayerCollision = this->CreateDefaultSubobject<UBoxComponent>("Player Collision");
+	this->PlayerCollision->SetupAttachment(rootComponent);
+	
+	this->PlayerBox = this->CreateDefaultSubobject<UStaticMeshComponent>("Player Box");
+	this->PlayerBox->SetupAttachment(this->PlayerCollision);
 }
 
 void ADSPlayerPawn::BeginPlay() {
@@ -35,5 +45,8 @@ void ADSPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 
 void ADSPlayerPawn::MovePlayer(const FInputActionValue& InputActionValue) {
-	// aqui é onde a gente move nosso cubo
+	const float inputValue = InputActionValue.Get<float>();
+	const float deltaTime = this->GetWorld()->GetDeltaSeconds();
+	const FVector newLocation = FVector(0, inputValue, 0) * this->MovementSpeed * deltaTime;
+	this->AddActorLocalOffset(newLocation);
 }
