@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "DSPlayerPawn.generated.h"
 
+class UDSGameDatabasePDA;
 class UBoxComponent;
 class UInputMappingContext;
 class UInputAction;
@@ -17,18 +18,22 @@ class CYBERPONG_API ADSPlayerPawn : public APawn {
 	
 protected:
 	UPROPERTY(EditAnywhere, Category="Player Components")
-	UBoxComponent* PlayerCollision;
+	TObjectPtr<UBoxComponent> PlayerCollision;
 	
 	UPROPERTY(EditAnywhere, Category="Player Components")
-	UStaticMeshComponent* PlayerBox;
+	TObjectPtr<UStaticMeshComponent> PlayerBox;
 	
 	
 protected:
 	UPROPERTY(EditAnywhere, Category="Player Inputs")
-	UInputMappingContext* PlayerInputMappingContext;	
+	TObjectPtr<UInputMappingContext> PlayerInputMappingContext;	
 
 	UPROPERTY(EditAnywhere, Category="Player Inputs")
-	UInputAction* MovementInputAction;
+	TObjectPtr<UInputAction> MovementInputAction;
+	
+protected:
+	UPROPERTY(EditAnywhere, Category="Game Database")
+	TObjectPtr<UDSGameDatabasePDA> GameDatabase;
 	
 public:
 	ADSPlayerPawn();
@@ -39,11 +44,6 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	
-protected:
-	UPROPERTY(EditAnywhere, Category="Player Movement")
-	float MovementSpeed;
 	
 private:
 	UFUNCTION()

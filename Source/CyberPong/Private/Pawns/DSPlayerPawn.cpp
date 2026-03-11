@@ -4,6 +4,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/BoxComponent.h"
+#include "Data/DSGameDatabasePDA.h"
+#include "Utils/DSDebug.h"
 
 ADSPlayerPawn::ADSPlayerPawn() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -20,6 +22,10 @@ ADSPlayerPawn::ADSPlayerPawn() {
 
 void ADSPlayerPawn::BeginPlay() {
 	Super::BeginPlay();
+	
+	if (!this->GameDatabase) {
+		DSDebug::ErrorMessage("Player Pawn Error: game database invalido ou nulo");
+	}
 }
 
 void ADSPlayerPawn::Tick(float DeltaTime) {
@@ -45,8 +51,14 @@ void ADSPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 
 void ADSPlayerPawn::MovePlayer(const FInputActionValue& InputActionValue) {
+	if (!this->GameDatabase) return;
+	
 	const float inputValue = InputActionValue.Get<float>();
 	const float deltaTime = this->GetWorld()->GetDeltaSeconds();
-	const FVector newLocation = FVector(0, inputValue, 0) * this->MovementSpeed * deltaTime;
+	
+	// pega a movement speed do player  direto do nosso database.
+	const auto movementSpeed = this->GameDatabase->PlayerMovementSpeed;
+	
+	const FVector newLocation = FVector(0, inputValue, 0) * movementSpeed * deltaTime;
 	this->AddActorLocalOffset(newLocation);
 }
