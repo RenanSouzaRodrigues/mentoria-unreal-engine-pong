@@ -17,6 +17,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="Ball")
 	float BallInitialImpulse;
 	
+	UPROPERTY(EditAnywhere, Category="Ball")
+	float BallHitImpulse;
+	
 	UPROPERTY(EditAnywhere, Category="Enemy")
 	float EnemyMovementSpeed;
 };

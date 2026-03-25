@@ -45,15 +45,19 @@ void ADSEnemy::Tick(float DeltaTime) {
 void ADSEnemy::MoveEnemy(const float deltaTime) {
 	if (!this->BallReferenceActor || !this->GameDatabase) return;
 	
-	const float enemyYAxis = this->GetActorLocation().Y;
 	const float ballYAxis = this->BallReferenceActor->GetActorLocation().Y;
 	
-	const float movementAmount = ballYAxis > enemyYAxis ? 1.f : -1.f;
+	// Representa o Ponto de partida (A)
+	const auto currentLocation = this->GetActorLocation();
+	
+	// Representa o ponto de chegada (B)
+	const auto targetLocation = FVector(currentLocation.X, ballYAxis , currentLocation.Z);
 	
 	// pega a movement speed do enemy direto do nosso database.
 	const auto movementSpeed = this->GameDatabase->EnemyMovementSpeed;
 	
-	const FVector newLocation = FVector(0, movementAmount, 0) * movementSpeed * deltaTime;
-	this->AddActorLocalOffset(newLocation);
+	const auto newLocation = FMath::VInterpConstantTo(currentLocation, targetLocation, deltaTime, movementSpeed);
+	
+	this->SetActorLocation(newLocation, true);
 }
 

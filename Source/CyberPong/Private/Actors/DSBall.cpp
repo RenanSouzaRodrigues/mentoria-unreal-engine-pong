@@ -32,8 +32,31 @@ void ADSBall::BeginPlay() {
 	const auto force = FVector(initialForce);
 	this->BallCollision->AddForce(force);
 	
+	this->BallCollision->OnComponentHit.AddDynamic(this, &ThisClass::OnBallHit);
 }
 
 void ADSBall::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+}
+
+void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
+	DSDebug::SuccessMessage("HIT");
+
+	if (OtherActor->ActorHasTag("Player")) {
+		
+	}
+	
+	if (OtherActor->ActorHasTag("Enemy")) {
+		
+	}
+	
+	if (OtherActor->ActorHasTag("Obstacle")) {
+		
+	}
+	
+	const auto impulse = this->GameDatabase->BallHitImpulse;
+	
+	const auto ballVelocity = this->GetVelocity();
+	
+	this->BallCollision->AddImpulse(ballVelocity * impulse);
 }
