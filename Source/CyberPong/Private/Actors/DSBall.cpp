@@ -2,6 +2,8 @@
 
 
 #include "Actors/DSBall.h"
+
+#include "Actors/DSObstacle.h"
 #include "Components/SphereComponent.h"
 #include "Data/DSGameDatabasePDA.h"
 #include "Utils/DSDebug.h"
@@ -41,6 +43,11 @@ void ADSBall::Tick(float DeltaTime) {
 
 void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
 	DSDebug::SuccessMessage("HIT");
+	
+	// Aqui é adicionado o impulso na bola sempre que ela bate em alguma coisa. -Renan
+	const auto impulse = this->GameDatabase->BallHitImpulse;
+	const auto ballVelocity = this->GetVelocity();
+	this->BallCollision->AddImpulse(ballVelocity * impulse);
 
 	if (OtherActor->ActorHasTag("Player")) {
 		
@@ -51,12 +58,9 @@ void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	}
 	
 	if (OtherActor->ActorHasTag("Obstacle")) {
-		
+		if (const auto obstacle = Cast<ADSObstacle>(OtherActor)) {
+			DSDebug::SuccessMessage("Obstacle Destroied");
+			obstacle->DestroyObstacle();
+		}
 	}
-	
-	const auto impulse = this->GameDatabase->BallHitImpulse;
-	
-	const auto ballVelocity = this->GetVelocity();
-	
-	this->BallCollision->AddImpulse(ballVelocity * impulse);
 }
