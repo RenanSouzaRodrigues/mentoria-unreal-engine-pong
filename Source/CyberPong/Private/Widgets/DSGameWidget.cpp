@@ -25,8 +25,24 @@ void UDSGameWidget::NativeConstruct() {
 	
 	this->UpdatePlayerPoints();
 	this->UpdateGameScore();
+	
+	this->GameData->OnUpdateGameScore.BindLambda([this]() -> void {
+		this->UpdateGameScore();
+	});
+	
+	this->GameData->OnUpdatePlayerPoints.BindLambda([this]() -> void {
+		this->UpdatePlayerPoints();
+	});
 }
 
+void UDSGameWidget::NativeDestruct() {
+	Super::NativeDestruct();
+	
+	if (this->GameData) {
+		this->GameData->OnUpdateGameScore.Unbind();
+		this->GameData->OnUpdatePlayerPoints.Unbind();
+	}
+}
 
 
 // ===========================================================

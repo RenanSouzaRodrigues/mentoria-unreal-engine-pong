@@ -38,12 +38,14 @@ protected:
 	// ===========================================================
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 	
 	// ===========================================================
 	// SCORE HANDLING
 	// ===========================================================
 private:
+	UFUNCTION()
 	void UpdatePlayerPoints();
 	void UpdateGameScore();
 };
