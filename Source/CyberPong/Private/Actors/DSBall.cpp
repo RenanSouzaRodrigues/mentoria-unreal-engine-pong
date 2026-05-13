@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Data/DSGameDatabasePDA.h"
 #include "Data/DSGameDataPDA.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utils/DSDebug.h"
 
 
@@ -67,7 +68,10 @@ void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	const auto impulse = this->GameDatabase->BallHitImpulse;
 	const auto ballVelocity = this->GetVelocity();
 	this->BallCollision->AddImpulse(ballVelocity * impulse);
-
+	
+	// Sempre que a bola bate em algum lugar, tbm é tocado um som de impacto
+	this->PlayBallHitSound();
+	
 	if (OtherActor->ActorHasTag("Player")) {
 		
 	}
@@ -82,4 +86,13 @@ void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			obstacle->DestroyObstacle();
 		}
 	}
+}
+
+
+void ADSBall::PlayBallHitSound() {
+	if (!this->BallHitSound) {
+		DSDebug::ErrorMessage("Ball Error: Invalid sound to play on hit");
+		return;
+	}
+	UGameplayStatics::PlaySound2D(this->GetWorld(), this->BallHitSound);
 }

@@ -5,6 +5,8 @@
 
 #include "Actors/DSObstacleSpawner.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Utils/DSDebug.h"
 
 
 ADSObstacle::ADSObstacle() {
@@ -33,5 +35,15 @@ void ADSObstacle::DestroyObstacle() {
 		spawner->DecreaseSpawnCount();
 	}
 	
+	this->PlayDestroyObstacleSound();
+	
 	this->Destroy();
+}
+
+void ADSObstacle::PlayDestroyObstacleSound() {
+	if (!this->DestroyObstacleSound) {
+		DSDebug::ErrorMessage("Obstacle Error: Invalid sound to play on destroy");
+		return;
+	}
+	UGameplayStatics::PlaySound2D(this->GetWorld(), this->DestroyObstacleSound);
 }

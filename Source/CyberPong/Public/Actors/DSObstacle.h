@@ -29,6 +29,16 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	
+	
+	// ================================================================
+	// DESTROY OBSTACLE
+	// ================================================================
+protected:
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Destroy Obstacle")
+	TObjectPtr<USoundBase> DestroyObstacleSound;
+	
 public:
 	void DestroyObstacle();
+	
+	void PlayDestroyObstacleSound();
 };

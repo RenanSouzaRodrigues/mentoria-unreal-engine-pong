@@ -57,7 +57,13 @@ public:
 	// ==================================================
 	// BALL HIT
 	// ==================================================
+protected:
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
+	TObjectPtr<USoundBase> BallHitSound;
+	
 private:
 	UFUNCTION()
 	void OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
+	void PlayBallHitSound();
 };
