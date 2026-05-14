@@ -14,7 +14,8 @@ public class CyberPong : ModuleRules
 			"Engine", 
 			"InputCore",
 			"EnhancedInput",
-			"UMG"
+			"UMG",
+			"Niagara"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

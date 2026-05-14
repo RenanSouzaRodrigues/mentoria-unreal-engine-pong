@@ -3,6 +3,7 @@
 
 #include "Actors/DSObstacle.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "Actors/DSObstacleSpawner.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -36,6 +37,7 @@ void ADSObstacle::DestroyObstacle() {
 	}
 	
 	this->PlayDestroyObstacleSound();
+	this->PlayDestroyObstacleParticles();
 	
 	this->Destroy();
 }
@@ -46,4 +48,13 @@ void ADSObstacle::PlayDestroyObstacleSound() {
 		return;
 	}
 	UGameplayStatics::PlaySound2D(this->GetWorld(), this->DestroyObstacleSound);
+}
+
+void ADSObstacle::PlayDestroyObstacleParticles() {
+	if (!this->DestroyObstacleParticles) {
+		DSDebug::ErrorMessage("Obstacle Error: invalid particles to spawn");
+		return;
+	}
+	
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this->GetWorld(), this->DestroyObstacleParticles, this->GetActorLocation(), this->GetActorRotation());
 }

@@ -14,12 +14,22 @@ public:
 	UPROPERTY(EditAnywhere, Category="Player")
 	float PlayerMovementSpeed;
 	
+	UPROPERTY(EditAnywhere, Category="Enemy")
+	float EnemyMovementSpeed;
+	
 	UPROPERTY(EditAnywhere, Category="Ball")
-	float BallInitialImpulse;
+	float BallInitialSpeed;
+	
+	UPROPERTY(EditAnywhere, Category="Ball")
+	float BallSpeedIncreasePerHit;
+	
+	UPROPERTY(EditAnywhere, Category="Ball")
+	float BallMinSpeed;
+	
+	UPROPERTY(EditAnywhere, Category="Ball")
+	float BallMaxSpeed;
 	
 	UPROPERTY(EditAnywhere, Category="Ball")
 	float BallHitImpulse;
 	
-	UPROPERTY(EditAnywhere, Category="Enemy")
-	float EnemyMovementSpeed;
 };

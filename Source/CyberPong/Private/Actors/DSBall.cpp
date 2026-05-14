@@ -2,6 +2,7 @@
 
 
 #include "Actors/DSBall.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Actors/DSObstacle.h"
 #include "Components/SphereComponent.h"
 #include "Data/DSGameDatabasePDA.h"
@@ -39,17 +40,50 @@ void ADSBall::BeginPlay() {
 		return;
 	}
 	
+	this->PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(this->GetWorld(), 0);
+	
+	if (!this->PlayerCameraManager) {
+		DSDebug::ErrorMessage("Ball Erro: Player Camera Manager is invalid or null");
+		return;
+	}
+	
 	this->GameData->ClearValues();
 	
-	const float initialForce = this->GameDatabase->BallInitialImpulse;
-	const auto force = FVector(initialForce);
-	this->BallCollision->AddForce(force);
-	
 	this->BallCollision->OnComponentHit.AddDynamic(this, &ThisClass::OnBallHit);
+	
+	this->InitializeBallSpeed();
 }
 
 void ADSBall::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+}
+
+
+// ==================================================
+// BALL SPEED
+// ==================================================
+void ADSBall::InitializeBallSpeed() {
+	const FVector InitialDirection = FVector(1.0f, 1.0f, 0.0f).GetSafeNormal();
+	const float InitialSpeed = this->GameDatabase->BallInitialSpeed;
+	this->BallCollision->SetPhysicsLinearVelocity(InitialDirection * InitialSpeed);
+}
+
+void ADSBall::IncreaseBallSpeed() {
+	const FVector CurrentVelocity = this->BallCollision->GetPhysicsLinearVelocity();
+
+	if (CurrentVelocity.IsNearlyZero()) return;
+	
+	const FVector Direction = CurrentVelocity.GetSafeNormal();
+
+	const float CurrentSpeed = CurrentVelocity.Size();
+
+	const float NewSpeed = FMath::Clamp(
+		CurrentSpeed + this->GameDatabase->BallSpeedIncreasePerHit,
+		this->GameDatabase->BallMinSpeed,
+		this->GameDatabase->BallMaxSpeed
+	);
+
+	this->BallCollision->SetPhysicsLinearVelocity(Direction * NewSpeed);
 }
 
 
@@ -65,15 +99,15 @@ void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	}
 	
 	// Aqui é adicionado o impulso na bola sempre que ela bate em alguma coisa. -Renan
-	const auto impulse = this->GameDatabase->BallHitImpulse;
-	const auto ballVelocity = this->GetVelocity();
-	this->BallCollision->AddImpulse(ballVelocity * impulse);
+	this->IncreaseBallSpeed();
 	
 	// Sempre que a bola bate em algum lugar, tbm é tocado um som de impacto
 	this->PlayBallHitSound();
 	
 	if (OtherActor->ActorHasTag("Player")) {
-		
+		if (this->PlayerCameraManager) {
+			this->PlayerCameraManager->StartCameraShake(this->PlayerHitCameraShake);
+		}
 	}
 	
 	if (OtherActor->ActorHasTag("Enemy")) {
@@ -82,10 +116,18 @@ void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	
 	if (OtherActor->ActorHasTag("Obstacle")) {
 		if (const auto obstacle = Cast<ADSObstacle>(OtherActor)) {
-			DSDebug::SuccessMessage("Obstacle Destroied");
+			DSDebug::SuccessMessage("Obstacle Destroyed");
 			obstacle->DestroyObstacle();
 		}
+		
+		if (this->PlayerCameraManager) {
+			this->PlayerCameraManager->StartCameraShake(this->ObstacleHitCameraShake);
+		}
+		
+		return;
 	}
+	
+	this->PlayBallHitParticles(Hit.Location, Hit.Normal);
 }
 
 
@@ -95,4 +137,15 @@ void ADSBall::PlayBallHitSound() {
 		return;
 	}
 	UGameplayStatics::PlaySound2D(this->GetWorld(), this->BallHitSound);
+}
+
+void ADSBall::PlayBallHitParticles(const FVector& Location, const FVector& Direction) {
+	if (!this->BallHitParticles) {
+		DSDebug::ErrorMessage("Ball Error: Invalid ball hit particles to spawn");
+		return;
+	}
+	
+	const auto rotation = Direction.Rotation();
+	
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this->GetWorld(), this->BallHitParticles, Location, rotation);
 }

@@ -59,5 +59,9 @@ void ADSEnemy::MoveEnemy(const float deltaTime) {
 	const auto newLocation = FMath::VInterpConstantTo(currentLocation, targetLocation, deltaTime, movementSpeed);
 	
 	this->SetActorLocation(newLocation, true);
+	
+	auto newActorLocation = this->GetActorLocation();
+	newActorLocation.Y = FMath::Clamp(newActorLocation.Y, -200, 200);
+	this->SetActorLocation(newActorLocation);
 }
 

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DSObstacle.generated.h"
 
+class UNiagaraSystem;
 class URotatingMovementComponent;
 
 UCLASS()
@@ -37,8 +38,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Actor Properties - Destroy Obstacle")
 	TObjectPtr<USoundBase> DestroyObstacleSound;
 	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Destroy Obstacle")
+	TObjectPtr<UNiagaraSystem> DestroyObstacleParticles;
+	
 public:
 	void DestroyObstacle();
 	
 	void PlayDestroyObstacleSound();
+	void PlayDestroyObstacleParticles();
 };

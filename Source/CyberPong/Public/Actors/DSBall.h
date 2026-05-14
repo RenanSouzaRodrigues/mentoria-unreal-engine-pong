@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DSBall.generated.h"
 
+class UNiagaraSystem;
 class UDSGameDataPDA;
 class UDSGameDatabasePDA;
 class USphereComponent;
@@ -55,15 +56,39 @@ public:
 	
 	
 	// ==================================================
+	// BALL SPEED
+	// ==================================================
+private:
+	void InitializeBallSpeed();
+	void IncreaseBallSpeed();
+	
+	
+	// ==================================================
 	// BALL HIT
 	// ==================================================
 protected:
 	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
 	TObjectPtr<USoundBase> BallHitSound;
 	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
+	TObjectPtr<UNiagaraSystem> BallHitParticles;
+	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
+	TSubclassOf<UCameraShakeBase> PlayerHitCameraShake;
+	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
+	TSubclassOf<UCameraShakeBase> ObstacleHitCameraShake;
+	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
+	
+private:
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerCameraManager> PlayerCameraManager;
+	
 private:
 	UFUNCTION()
 	void OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	void PlayBallHitSound();
+	void PlayBallHitParticles(const FVector& Location, const FVector& Direction);
 };

@@ -61,4 +61,8 @@ void ADSPlayerPawn::MovePlayer(const FInputActionValue& InputActionValue) {
 	
 	const FVector newLocation = FVector(0, inputValue, 0) * movementSpeed * deltaTime;
 	this->AddActorLocalOffset(newLocation);
+	
+	auto newActorLocation = this->GetActorLocation();
+	newActorLocation.Y = FMath::Clamp(newActorLocation.Y, -200, 200);
+	this->SetActorLocation(newActorLocation);
 }
