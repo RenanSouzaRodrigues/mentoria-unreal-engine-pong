@@ -57,6 +57,6 @@ void UDSGameWidget::UpdatePlayerPoints() {
 void UDSGameWidget::UpdateGameScore() {
 	const auto playerScore = FString::FromInt(this->GameData->PlayerScore);
 	const auto enemyScore = FString::FromInt(this->GameData->EnemyScore);
-	const auto gameScoreFinalText = playerScore + " | " + enemyScore;
+	const auto gameScoreFinalText = playerScore + " - " + enemyScore;
 	this->GameScoreCounterText->SetText(FText::FromString(gameScoreFinalText));
 }

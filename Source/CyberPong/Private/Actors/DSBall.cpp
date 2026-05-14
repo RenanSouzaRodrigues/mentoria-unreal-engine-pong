@@ -2,6 +2,8 @@
 
 
 #include "Actors/DSBall.h"
+
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Actors/DSObstacle.h"
 #include "Components/SphereComponent.h"
@@ -25,6 +27,9 @@ ADSBall::ADSBall() {
 	
 	this->BallMesh = this->CreateDefaultSubobject<UStaticMeshComponent>("Ball Mesh");
 	this->BallMesh->SetupAttachment(this->BallCollision);
+	
+	this->BallTrailParticles = this->CreateDefaultSubobject<UNiagaraComponent>("Ball Trail");
+	this->BallTrailParticles->SetupAttachment(this->BallMesh);
 }
 
 void ADSBall::BeginPlay() {
@@ -87,46 +92,75 @@ void ADSBall::IncreaseBallSpeed() {
 }
 
 
+// ==================================================
+// BALL RESET
+// ==================================================
+void ADSBall::DestroyBallOnGoal() {
+	this->BallMesh->SetHiddenInGame(true);
+	this->BallTrailParticles->SetHiddenInGame(true);
+	this->BallCollision->SetPhysicsLinearVelocity(FVector::Zero());
+	
+	if (this->BallDestroyParticles) {
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this->GetWorld(), this->BallDestroyParticles, this->GetActorLocation(), this->GetActorRotation());
+	}
+	
+	if (this->BallDestroySound) {
+		UGameplayStatics::PlaySound2D(this->GetWorld(), this->BallDestroySound);
+	}
+	
+	if (this->PlayerCameraManager) {
+		this->PlayerCameraManager->StartCameraShake(this->BallDestroyCameraShake);
+	}
+	
+	UGameplayStatics::SetGlobalTimeDilation(this->GetWorld(), 0.3f);
+	
+	FTimerHandle timerHandle;
+	FTimerDelegate timerDelegate;
+	timerDelegate.BindLambda([this]() -> void {
+		UGameplayStatics::SetGlobalTimeDilation(this->GetWorld(), 1.f);
+		this->ResetBall();
+	});
+	
+	this->GetWorldTimerManager().SetTimer(timerHandle, timerDelegate, 3.f, false);
+}
+
+void ADSBall::ResetBall() {
+	this->SetActorLocation(FVector::Zero());
+	this->BallMesh->SetHiddenInGame(false);
+	this->BallTrailParticles->SetHiddenInGame(false);
+	this->InitializeBallSpeed();
+}
+
 
 // ==================================================
 // BALL HIT
 // ==================================================
 void ADSBall::OnBallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	DSDebug::SuccessMessage("HIT");
-	
 	if (this->GameData) {
 		this->GameData->IncrementePlayerPoints(10);
 	}
 	
-	// Aqui é adicionado o impulso na bola sempre que ela bate em alguma coisa. -Renan
-	this->IncreaseBallSpeed();
-	
-	// Sempre que a bola bate em algum lugar, tbm é tocado um som de impacto
-	this->PlayBallHitSound();
+	TSubclassOf<UCameraShakeBase> cameraShake = this->NormalHitCameraShake;
 	
 	if (OtherActor->ActorHasTag("Player")) {
-		if (this->PlayerCameraManager) {
-			this->PlayerCameraManager->StartCameraShake(this->PlayerHitCameraShake);
-		}
-	}
-	
-	if (OtherActor->ActorHasTag("Enemy")) {
-		
+		cameraShake = this->PlayerHitCameraShake;
 	}
 	
 	if (OtherActor->ActorHasTag("Obstacle")) {
 		if (const auto obstacle = Cast<ADSObstacle>(OtherActor)) {
-			DSDebug::SuccessMessage("Obstacle Destroyed");
 			obstacle->DestroyObstacle();
 		}
 		
-		if (this->PlayerCameraManager) {
-			this->PlayerCameraManager->StartCameraShake(this->ObstacleHitCameraShake);
-		}
-		
-		return;
+		cameraShake = this->ObstacleHitCameraShake;
 	}
 	
+	this->IncreaseBallSpeed();
+	
+	if (this->PlayerCameraManager) {
+		this->PlayerCameraManager->StartCameraShake(cameraShake);
+	}
+	
+	this->PlayBallHitSound();
 	this->PlayBallHitParticles(Hit.Location, Hit.Normal);
 }
 

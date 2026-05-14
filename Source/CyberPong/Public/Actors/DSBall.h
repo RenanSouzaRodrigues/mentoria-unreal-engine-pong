@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DSBall.generated.h"
 
+class UNiagaraComponent;
 class UNiagaraSystem;
 class UDSGameDataPDA;
 class UDSGameDatabasePDA;
@@ -41,6 +42,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Actor Components")
 	TObjectPtr<UStaticMeshComponent> BallMesh;
 	
+	UPROPERTY(EditAnywhere, Category="Actor Components")
+	TObjectPtr<UNiagaraComponent> BallTrailParticles;
+	
 
 	// ==================================================
 	// UNREAL LIFECYCLE METHODS
@@ -64,6 +68,24 @@ private:
 	
 	
 	// ==================================================
+	// BALL RESET
+	// ==================================================
+protected:
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Destroy")
+	TObjectPtr<USoundBase> BallDestroySound;
+	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Destroy")
+	TObjectPtr<UNiagaraSystem> BallDestroyParticles;
+	
+	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Destroy")
+	TSubclassOf<UCameraShakeBase> BallDestroyCameraShake;
+	
+public:
+	void DestroyBallOnGoal();
+	void ResetBall();
+	
+	
+	// ==================================================
 	// BALL HIT
 	// ==================================================
 protected:
@@ -80,6 +102,7 @@ protected:
 	TSubclassOf<UCameraShakeBase> ObstacleHitCameraShake;
 	
 	UPROPERTY(EditAnywhere, Category="Actor Properties - Ball Hit")
+	TSubclassOf<UCameraShakeBase> NormalHitCameraShake;
 	
 private:
 	UPROPERTY(Transient)

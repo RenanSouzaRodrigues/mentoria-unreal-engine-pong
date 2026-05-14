@@ -2,6 +2,8 @@
 
 
 #include "Actors/DSGoal.h"
+
+#include "Actors/DSBall.h"
 #include "Components/BoxComponent.h"
 #include "Data/DSGameDataPDA.h"
 #include "Utils/DSDebug.h"
@@ -29,9 +31,15 @@ void ADSGoal::Tick(const float DeltaTime) {
 }
 
 void ADSGoal::DetectBall(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,const FHitResult& SweepResult) {
-	DSDebug::InfoMessage("Gooooooooool");
-	
 	if (!this->GameData || !OtherActor->ActorHasTag("Ball")) return;
+	
+	const auto ball = Cast<ADSBall>(OtherActor);
+	if (!ball) {
+		DSDebug::ErrorMessage("Goal Error: Ball reference is invalid or null");
+		return;
+	}
+	
+	ball->DestroyBallOnGoal();
 	
 	if (this->GoalType == EDSGoalType::Player) {
 		this->GameData->IncrementEnemyScore();
